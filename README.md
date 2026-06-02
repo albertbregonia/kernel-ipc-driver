@@ -22,8 +22,6 @@ I wrote and tested this on my laptop running Arch Linux kernel version `7.0.10-a
 sudo pacman -S gcc linux linux-headers
 ```
 
-TODO: I plan on making a `dockerfile` for this so I don't have to restart my laptop when it inevitably kernel panics.
-
 ## Motivation
 This project was originally for my operating systems class to learn about general differences when programming in userspace vs the kernel. I decided to revamp the project with better structured code to be a better reference when doing larger future projects.
 
@@ -33,8 +31,8 @@ Furthermore, my language of choice these days is usually Rust. As Linux supports
 TODO
 
 ## Other Notes
-- The `make` system expects the makefile to be `Makefile` with a capital M (in Linux unlike Windows, files are case-sensitive)
-- IntelliSense in VSCode false-positively highlights the strings for the `MODULE_` macros in `#include <linux/module.h>` with the error:
+- In the [`.vscode`](/.vscode) folder, I created two configurations so that I could use IntelliSense while developing. It is important to know to switch between "Kernel" and "Userspace" configurations when developing for either or so that IntelliSense can index the correct headers and dependencies. Therefore, IntelliSense will show errors for userspace code when using the "Kernel" configuration and vice-versa.
+- Furthermore, IntelliSense in VSCode false-positively highlights the strings for the `MODULE_` macros in `#include <linux/module.h>` with the error:
     ```
     expression must have integral type
     ```
