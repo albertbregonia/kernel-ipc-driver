@@ -18,7 +18,8 @@ However, as a reference repo, the kernel code would've simply been a `netlink_ke
 I wrote and tested this on my laptop running Arch Linux kernel version `7.0.10-arch1-1`
 
 ```bash
-# ensure that the running kernel version matches the header version and gcc is compatible with that as well
+# ensure that the running kernel version matches the header version 
+# and gcc is compatible with that version as well
 sudo pacman -S gcc linux linux-headers
 ```
 

@@ -47,19 +47,21 @@ struct IPCMessage parse_netlink_msg_header(struct nlmsghdr *header) {
 }
 
 // sets the first byte of the netlink msg payload to one of enum IPCMessageType
+// returns the netlink data pointer aka the pointer to the first byte that was just written 
 char* put_ipc_message_type(struct nlmsghdr *netlink_msg, enum IPCMessageType type) {
     char* payload_buffer = NLMSG_DATA(netlink_msg);
     payload_buffer[0] = type;
     return payload_buffer;
 }
 
+// sets the first byte of the netlink msg payload to one of enum IPCMessageType
+// and then memcpy()'s `len` bytes of `msg` to the data location after the first byte
 void put_ipc_message_format(
     struct nlmsghdr *netlink_msg,
     enum IPCMessageType type, 
     char *msg, 
     size_t len
 ) {
-    // sets the first byte of the payload to the IPCMessageType enum value
     char* payload_buffer = put_ipc_message_type(netlink_msg, type);
     memcpy(payload_buffer+1, msg, len);
 }
@@ -69,5 +71,6 @@ void put_ipc_message_format(
 // logically, this is fine as the driver does not echo messages back to the sender. it simply wastes memory
 void put_ipc_register_message(struct nlmsghdr *netlink_msg, int subscriber) {
     enum IPCMessageType type = subscriber > 0 ? REGISTER_SUBSCRIBER : REGISTER_PUBLISHER;
+    // "\0" won't be read by the driver but it ensures string functions like strlen() won't read much
     put_ipc_message_format(netlink_msg, type, "\0", 1);
 }
