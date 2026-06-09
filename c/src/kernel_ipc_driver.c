@@ -112,9 +112,11 @@ static void netlink_msg_handler(struct sk_buff *skb) {
     struct nlmsghdr *header = (struct nlmsghdr*) skb->data;
     struct IPCMessage ipc_msg = parse_netlink_msg_header(header);
     printk(KERN_DEBUG "Parsed IPC message from PID: %d. Type: %d\n", ipc_msg.from_pid, ipc_msg.type);
+    mutex_lock(&GLOBAL_STATE.lock);
     if(ipc_msg.type == REGISTER_PUBLISHER || 
         ipc_msg.type == REGISTER_SUBSCRIBER) {
         register_process(ipc_msg);
+        mutex_unlock(&GLOBAL_STATE.lock);
         return;
     }
     if(ipc_msg.type == BROADCAST && is_publisher_registered(ipc_msg.from_pid)) {
@@ -122,12 +124,14 @@ static void netlink_msg_handler(struct sk_buff *skb) {
         int result = broadcast(ipc_msg);
         if(result != OK) {
             printk(KERN_ERR "Failure during broadcast: %d\n", result);
+            mutex_unlock(&GLOBAL_STATE.lock);
             return;
         }
         printk(KERN_INFO "Broadcasted received msg payload sucessfully\n");
     } else {
         printk(KERN_INFO "Unhandled IPC message Type: %d Content: `%s`\n", ipc_msg.type, ipc_msg.content);
     }
+    mutex_unlock(&GLOBAL_STATE.lock);
 }
 
 static int __init kernel_ipc_driver_init(void) {
@@ -143,14 +147,18 @@ static int __init kernel_ipc_driver_init(void) {
         return NETLINK_INIT_FAILURE;
     }
     GLOBAL_STATE.netlink_socket = netlink_socket;
+    mutex_init(&GLOBAL_STATE.lock);
     return 0;
 }
 
 static void __exit kernel_ipc_driver_exit(void) {
     printk(KERN_INFO "Uninitializing Kernel IPC Driver using: %s\n", __FUNCTION__);
+    mutex_lock(&GLOBAL_STATE.lock);
     clear_pid_list(&GLOBAL_STATE.publishers.links);
     clear_pid_list(&GLOBAL_STATE.subscribers.links);
     netlink_kernel_release(GLOBAL_STATE.netlink_socket);
+    mutex_unlock(&GLOBAL_STATE.lock);
+    mutex_destroy(&GLOBAL_STATE.lock);
 }
 
 module_init(kernel_ipc_driver_init);
