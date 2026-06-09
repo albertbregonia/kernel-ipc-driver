@@ -78,7 +78,7 @@ static inline bool is_process_alive(int pid) {
 }
 
 // if the publisher is in the list but not active, this will remove it and return false eventually
-static bool is_publisher_alive(int pid) {
+static bool is_publisher_registered(int pid) {
     bool seen = false;
     struct list_head *it, *temp; // iterators
     list_for_each_safe(it, temp, &GLOBAL_STATE.publishers.links) { // for each pub PID
@@ -117,7 +117,7 @@ static void netlink_msg_handler(struct sk_buff *skb) {
         register_process(ipc_msg);
         return;
     }
-    if(ipc_msg.type == BROADCAST && is_publisher_alive(ipc_msg.from_pid)) {
+    if(ipc_msg.type == BROADCAST && is_publisher_registered(ipc_msg.from_pid)) {
         printk(KERN_INFO "Broadcasting payload: `%s`\n", ipc_msg.content);
         int result = broadcast(ipc_msg);
         if(result != OK) {
