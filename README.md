@@ -38,9 +38,9 @@ Furthermore, my language of choice these days is usually Rust. As Linux supports
  After running `sudo insmod` this function is ran, it initializes the netlink socket "server", and then places the pointer in the `GLOBAL_STATE` struct. `GLOBAL_STATE` is just a way to have a collection of all the global variables. This is nicer than having them all scattered about at the top of the file as it shows intent. I'm not usually a fan of these because 9/10 times you can just use an argument to a function and it's better practice to follow dependency injection. However, *this case is that 10th time* and since `netlink_msg_handler()` will be called internally when a netlink message is received, we cannot pass it in as an argument to the function without some sort of workaround. This is fine as the `GLOBAL_STATE` vars live as long as the driver lives.
  
 ```
-        ----------------------------            note: REGISTER is abbreviation for the enums REGISTER_PUBLISHER and REGISTER_SUBSCRIBER
-        |  2. netlink_msg_handler  |                  BROADCAST is also of the same type
-        ----------------------------
+        ----------------------------            note: REGISTER is abbreviation for the enums 
+        |  2. netlink_msg_handler  |                  `REGISTER_PUBLISHER` and `REGISTER_SUBSCRIBER`
+        ----------------------------                  BROADCAST is also of the same type
                     |
                     v
         [ parse_netlink_msg_header ]
@@ -56,17 +56,17 @@ Furthermore, my language of choice these days is usually Rust. As Linux supports
         <pub or sub?>                    <type == BROADCAST?>
      pub |       | sub                     |            |
          v       v                     yes |            | no                    
-   [add to pub/sub linked list]            |            ----------------------------
-             |                             v                                       |
-             |                      < is_publisher_alive >                         |
-             |                             |        |                              |
-             |                         yes |        |  no                          |
-             |                             v        |                              |
-             |                       [ broadcast ]  |                              |
-             |                             |        |                              |
-             |                             |        |                              |
-             |                             v        v                              v
-             ------------------------------+--------+-------------------------> [ end ]
+   [add to pub/sub linked list]            |            ------------
+             |                             v                       |
+             |                      < is_publisher_alive >         |
+             |                             |        |              |
+             |                         yes |        |  no          |
+             |                             v        |              |
+             |                       [ broadcast ]  |              |
+             |                             |        |              |
+             |                             |        |              |
+             |                             v        v              v
+             ------------------------------+--------+---------> [ end ]
             
 ```
 As previously mentioned `netlink_msg_handler()` is a callback invoked upon any new netlink message received, passed in as a `struct sk_buff*`. The workflow is shown above at a high level not including helpers and internals that will be explained here.
