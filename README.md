@@ -10,6 +10,10 @@ A Linux kernel module that performs IPC (Inter-Process Communication) by ingesti
 - Seeing ASCII Tux when my laptop kernel panics
 - Setting up VSCode IntelliSense to work with Linux headers
 
+<span>
+    <img alt="sample dmesg output" src="./assets/dmesg.png" width="500px" align="center"/>
+</span>
+
 ***Yes, this could very well be simplified by using multicast with `netlink` and is the better way of implementing IPC with `netlink`.***. I did explore this idea- and I understand that it ***is*** the better option as relying on the well-vetted, well-established library will always triumph over a rework. 
 
 However, as a reference repo, the kernel code would've simply been a `netlink_kernel_create` call with a handler that performs a `nlmsghdr` clone and `nlmsg_multicast` with a group id. Too simple, too much abstraction, ***not enough learning***.
